@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+
+# Large outputs / datasets
+work/
+output/
+*.ply
+*.db
+*.log
+
+# Videos / frames
+*.mp4
+*.mov
+frames/
