@@ -1,20 +1,21 @@
-# Python
-.venv/
-__pycache__/
-*.pyc
-*.pyo
+# 기본: 전부 무시
+*
 
-# OS
-.DS_Store
+# --- 허용: 소스/문서 ---
+!.gitignore
+!README.md
+!LICENSE
+!scripts/
+!scripts/**
 
-# Large outputs / datasets
-work/
-output/
-*.ply
-*.db
-*.log
+# (옵션) 파이썬 패키지 구조가 있으면
+!src/
+!src/**
 
-# Videos / frames
-*.mp4
-*.mov
-frames/
+# --- 허용: 결과 이미지(PNG) ---
+!output/
+!output/**/*.png
+
+# --- 추가로 허용하고 싶으면 여기에 ---
+# !configs/
+# !configs/**
