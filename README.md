@@ -40,7 +40,7 @@ XY 평면 투영 →
 
 * OS: Ubuntu 22.04 LTS
 * GPU: NVIDIA GPU (CUDA 사용)
-* Language: Python, C++
+* Language: Python
 
 주요 라이브러리:
 
@@ -114,6 +114,7 @@ python scripts/make_floorplan.py --ply work/dense/fused.ply --out output
 * 벽과 가구가 명확히 분리되지 않음
 * 관측 경로가 강하게 남는 경우 평면도가 왜곡될 수 있음
 * 실시간 처리에는 적합하지 않음
+* Depth Camera를 사용하지 않아 전체적인 성능이 떨어짐
 
 ---
 
@@ -124,6 +125,7 @@ python scripts/make_floorplan.py --ply work/dense/fused.ply --out output
 * 문 및 통로 자동 감지
 * SVG / DXF 벡터 도면 출력
 * 학습 기반 평면도 추출 기법 적용
+* Depth Camera 사용
 
 ---
 
