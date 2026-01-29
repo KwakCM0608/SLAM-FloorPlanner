@@ -1,136 +1,145 @@
-# SLAM_FloorPlan
+# Indoor Floorplan Generation from Video (COLMAP)
 
-휴대폰으로 촬영한 실내 영상을 입력으로 받아
-COLMAP 기반 3D 재구성을 수행하고, 이를 바탕으로 2D 실내 평면도를 생성하는 프로젝트이다.
+스마트폰으로 촬영한 실내 동영상을 입력으로 받아
+COLMAP 기반 3D 재구성(SfM / MVS)을 수행하고,
+최종적으로 2D 실내 평면도(floorplan)를 생성하는 프로젝트입니다.
 
-본 프로젝트는 연구 및 프로토타입 목적이며
-현재는 2D 평면도 생성에 초점을 맞추고 있다.
-
----
-
-## 프로젝트 목적
-
-단일 스마트폰 영상만으로
-별도의 깊이 센서 없이
-사람이 이해할 수 있는 실내 평면도를 생성할 수 있는지 검증한다.
-
-이를 위해 Structure-from-Motion(SfM)과
-Multi-View Stereo(MVS) 기반 파이프라인을 구성했다.
+일반 RGB 영상만 사용하며, LiDAR나 Depth 카메라는 필요하지 않습니다.
 
 ---
 
-## 파이프라인 개요
+## Pipeline
 
-입력 영상부터 평면도 생성까지의 처리 흐름은 다음과 같다.
+본 프로젝트는 다음 단계를 따릅니다.
 
-Input video →
-Frame extraction →
-COLMAP sparse reconstruction (SfM) →
-COLMAP dense reconstruction (MVS) →
-3D point cloud (fused.ply) →
-바닥 평면 추정 및 정렬 →
-높이 슬라이스 (벽 영역) →
-XY 평면 투영 →
-후처리 →
-2D 평면도 이미지
+1. 동영상에서 프레임 추출
+2. COLMAP sparse reconstruction (카메라 포즈 추정)
+3. COLMAP dense reconstruction (point cloud 생성)
+4. Dense point cloud를 2D로 투영하여 평면도 생성
 
 ---
 
-## 사용 환경
-
-* OS: Ubuntu 22.04 LTS
-* GPU: NVIDIA GPU (CUDA 사용)
-* Language: Python
-
-주요 라이브러리:
-
-* COLMAP
-* Open3D
-* OpenCV
-* NumPy
-
-대용량 중간 산출물은 GitHub에 포함하지 않는다.
-
----
-
-## 디렉토리 구조
+## Project Structure
 
 ```
-slam_floorplan/
-├── scripts/
-│   ├── extract_frames.py
-│   ├── run_pipeline.py
-│   └── make_floorplan.py
-│
-├── work/        # COLMAP 작업 디렉토리 (Git 제외)
-├── output/      # 결과 이미지 (Git 제외)
-│
-├── README.md
-└── .gitignore
+slam-floorplan/
+├─ scripts/
+│  ├─ run_colmap_sparse.sh
+│  ├─ run_colmap_dense.sh
+│  └─ make_floorplan.py
+├─ output/
+│  ├─ floorplan_raw.png
+│  ├─ floorplan_thr.png
+│  └─ floorplan_clean.png
+├─ work/
+│  └─ dense/
+│     └─ fused.ply
+├─ README.md
+└─ .gitignore
 ```
 
 ---
 
-## 결과물
+## Requirements
 
-**floorplan_raw.png**
+* Ubuntu 22.04
+* NVIDIA GPU (CUDA 지원)
+* COLMAP (CUDA enabled)
+* Python 3.10
+* ffmpeg
 
-3D 포인트클라우드를 그대로 상부에서 투영한 결과이다.
-노이즈, 가구, 카메라 이동 잔상이 포함되어 있으며
-파이프라인 상태를 확인하기 위한 용도로 사용한다.
-
-**floorplan_clean.png**
-
-floorplan_raw에 후처리를 적용한 결과이다.
-형태학 연산과 연결 성분 필터링을 통해
-사람이 보기 쉬운 평면도 형태를 목표로 한다.
-
-색상 의미:
-
-* 흰색: 점이 존재하는 영역 (벽 또는 장애물 후보)
-* 검은색: 빈 공간
-
----
-
-## 실행 방법 (요약)
-
-가상환경 활성화:
+필요한 Python 라이브러리는 다음과 같습니다.
 
 ```
-source .venv/bin/activate
-```
-
-평면도 생성:
-
-```
-python scripts/make_floorplan.py --ply work/dense/fused.ply --out output
+pip install open3d opencv-python numpy
 ```
 
 ---
 
-## 현재 한계
+## Usage
 
-* Dense reconstruction 품질에 크게 의존함
-* 벽과 가구가 명확히 분리되지 않음
-* 관측 경로가 강하게 남는 경우 평면도가 왜곡될 수 있음
-* 실시간 처리에는 적합하지 않음
-* Depth Camera를 사용하지 않아 전체적인 성능이 떨어짐
+### 1. Frame extraction
 
----
+입력 영상에서 프레임을 추출합니다.
 
-## 향후 개선 방향
+```
+ffmpeg -i input.mp4 -vf fps=1.2 work/frames/frame_%05d.jpg
+```
 
-* Sparse reconstruction 및 카메라 궤적 기반 평면도 생성
-* Manhattan world 가정 적용
-* 문 및 통로 자동 감지
-* SVG / DXF 벡터 도면 출력
-* 학습 기반 평면도 추출 기법 적용
-* Depth Camera 사용
+> 입력 영상(mp4)은 GitHub에 포함되어 있지 않으며,
+> 사용자가 직접 촬영한 영상을 사용해야 합니다.
 
 ---
 
-## 작성자
+### 2. Sparse reconstruction
 
-곽창민
+카메라 포즈와 sparse point cloud를 생성합니다.
+
+```
+bash scripts/run_colmap_sparse.sh
+```
+
+---
+
+### 3. Dense reconstruction
+
+Dense point cloud를 생성합니다.
+
+```
+bash scripts/run_colmap_dense.sh
+```
+
+결과물은 다음 경로에 생성됩니다.
+
+```
+work/dense/fused.ply
+```
+
+---
+
+### 4. Floorplan generation
+
+Dense point cloud를 2D 평면도로 변환합니다.
+
+```
+python scripts/make_floorplan.py \
+  --model work/dense/fused.ply \
+  --out output
+```
+
+---
+
+## Output
+
+<img width="495" height="502" alt="Image" src="https://github.com/user-attachments/assets/c6bba252-eea1-430a-a67b-178e8b1a0671" />
+<img width="1631" height="857" alt="Image" src="https://github.com/user-attachments/assets/3254070d-5d0c-4c1c-9602-76933532130c" />
+<img width="891" height="706" alt="image" src="https://github.com/user-attachments/assets/68e7156d-9770-4dee-8392-07661f6b94d1" />
+
+* `fused.ply`
+  → 3D 포인트를 그대로 투영한 결과
+  
+* `floorplan_raw.png`
+  → 3D 포인트를 그대로 투영한 결과 (2D형태로 출력)
+
+* `floorplan_thr.png`
+  → 밀도 기반 threshold 적용 결과
+
+* `floorplan_clean.png`
+  → morphology 연산으로 정제된 최종 평면도
+
+---
+
+## Notes
+
+* 충분한 카메라 이동(parallax)이 필요합니다.
+* 회전 위주 촬영은 구조 복원이 어렵습니다.
+* 텍스처가 거의 없는 벽/바닥 영역은 인식이 약할 수 있습니다.
+* Dense reconstruction 품질이 평면도 품질을 크게 좌우합니다.
+
+---
+
+## License
+
+본 프로젝트는 연구 및 교육 목적을 위해 작성되었습니다.
 
 ---
