@@ -1,21 +1,24 @@
-# 기본: 전부 무시
-*
+# videos
+*.mp4
+*.mov
+*.avi
 
-# --- 허용: 소스/문서 ---
-!.gitignore
-!README.md
-!LICENSE
-!scripts/
-!scripts/**
+# frames & images
+work/frames/
+work/frames_sub/
+work/dense/images/
 
-# (옵션) 파이썬 패키지 구조가 있으면
-!src/
-!src/**
+# colmap cache
+work/colmap.db
 
-# --- 허용: 결과 이미지(PNG) ---
-!output/
-!output/**/*.png
+# dense intermediate
+work/dense/stereo/
 
-# --- 추가로 허용하고 싶으면 여기에 ---
-# !configs/
-# !configs/**
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# misc
+*.log
+.DS_Store

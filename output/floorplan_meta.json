@@ -1,0 +1,26 @@
+{
+  "input_ply": "/home/kcm-dclab2004/slam_floorplan/work/dense/fused.ply",
+  "res_m": 0.03,
+  "voxel_m": 0.03,
+  "plane_model": [
+    -0.014445780961847784,
+    0.8870277095012749,
+    0.4614901537295508,
+    -2.1976529575654196
+  ],
+  "plane_normal_unit": [
+    -0.014445780961833337,
+    0.8870277095003878,
+    0.4614901537290893
+  ],
+  "z_floor_aligned_m": 2.2136366816692923,
+  "floor_band_m": 0.12,
+  "thr_mode": "percentile",
+  "thr_percentile": 92.0,
+  "origin_xy_m": [
+    -8.981374336802402,
+    -7.860682794269654
+  ],
+  "grid_W": 495,
+  "grid_H": 502
+}
